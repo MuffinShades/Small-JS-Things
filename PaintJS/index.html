@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title></title>
+    </head>
+    <body>
+        <div id='bar'>
+            <button onclick='SetTool("Rect")'>Rectangle</button>
+            <button onclick='SetTool("Circle")'>Circle</button>
+            <button>Circle Tool</button>
+            <button onclick='SetTool("Fill")'>Paint Bucket</button>
+            <button onclick='SetTool("Brush")'>Brush</button>
+            <input type='color' oninput='SetColorInp(this)'>
+            <label>Bush Size:</label><input type="number" value='1' oninput='SetBrushSize(this.value)'>
+        </div>
+        <div id='temp-cell'>
+
+        </div>
+        <canvas id='c'></canvas>
+        <script src='paint.js'></script>
+        <script src='gamemec.js'></script>
+    </body>
+</html>
