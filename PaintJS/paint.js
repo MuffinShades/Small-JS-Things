@@ -42,6 +42,24 @@ function SetBrushSize(v) {
     BrushSize = v;
 }
 
+function _Undo() {
+    if (undo_history.length > 0) {
+        redo_history.push(ctx.getImageData(0,0,can.width,can.height));
+        let h = undo_history.pop();
+        ctx.putImageData(h,0,0);
+    }
+}
+
+function Redo() {
+    if (redo_history.length > 0) {
+        undo_history.push(ctx.getImageData(0,0,can.width,can.height));
+        ctx.putImageData(redo_history.pop(),0,0);
+    }
+}
+
+var undo_history=[];
+var redo_history = [];
+
 var tools = {};
 
 var lastX = -1;
@@ -92,6 +110,11 @@ window.addEventListener('mousedown', function(e) {
 
     mx = e.pageX - rect.left;
     my = e.pageY - rect.top;
+
+    if (mx >= 0 && mx <= can.width && my >= 0 && my <= can.height) {
+        undo_history.push(ctx.getImageData(0,0,can.width,can.height));
+        redo_history = [];
+    }
 
     //modes: 0 mousedown, 1 mousemove, 2 mouseup
     tools[current_tool](mx, my, current_color, {mode:0,brush_size:BrushSize});
@@ -350,4 +373,8 @@ tools['Circle'] = function(x, y, select_color, settings) {
             tool_data['Circle'].current_r = false;
         }
     }
+}
+
+tools['Eraser'] = function(x, y, select_color, settings) {
+    tools['Brush'](x,y, {r:255,g:255,b:255,a:255}, settings);
 }

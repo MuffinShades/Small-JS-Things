@@ -10,7 +10,9 @@
             <button>Circle Tool</button>
             <button onclick='SetTool("Fill")'>Paint Bucket</button>
             <button onclick='SetTool("Brush")'>Brush</button>
-            <button onclick='SetTool("Eraser")'></button>
+             <button onclick='Redo()'>Redo</button>
+             <button onclick='_Undo()'>Undo</button>
+            <button onclick='SetTool("Eraser")'>Eraser</button>
             <input type='color' oninput='SetColorInp(this)'>
             <label>Bush Size:</label><input type="number" value='1' oninput='SetBrushSize(this.value)'>
         </div>
