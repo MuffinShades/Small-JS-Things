@@ -10,6 +10,31 @@ This tool is a addon and is not included in the original tutorial due to complex
 
 */
 
+function SelectImg(img, x, y, w, h) {
+    tool_data['Select'] = {
+        dat: GetImageDat(img),
+        c_sav: ctx.getImageData(0,0,can.width,can.height),
+        sx: x,
+        sy: y,
+        sel_x:x,
+        sel_y:y,
+        sel_w:w,
+        sel_h:h,
+        img:img,
+        xOff: 0,
+        yOff: 0,
+        mov: false,
+        dash_offset: 0,
+        dash_space: 5,
+        current_r: false,
+        select_mov: true,
+        pts: [],
+        point_w: 4,
+        current_pt:-1,
+    }
+    tools['Select'](x,y,{r:0,g:0,b:0},{mode:2});
+}
+
 tools['Select'] = function(x, y, current_color, settings) {
     if (tool_data['Select'] == void 0 || tool_data['Select'] == {}) {
         tool_data['Select'] = {
@@ -71,7 +96,6 @@ tools['Select'] = function(x, y, current_color, settings) {
                 ctx.drawImage(dat.img,dat.sel_x,dat.sel_y,dat.sel_w,dat.sel_h);
                 tool_data['Select'] = void 0;
             } else if (dat.current_pt < 0) {
-                console.log('!');
                 dat.mov = true;
                 dat.xOff = x - dat.sel_x;
                 dat.yOff = y - dat.sel_y;

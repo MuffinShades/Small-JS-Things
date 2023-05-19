@@ -61,6 +61,29 @@ function Redo() {
     }
 }
 
+//image to canvas data conversion functions
+function GetImageDat(img) {
+    let _c = document.createElement('canvas');
+    _c.width = img.width;
+    _c.height = img.height;
+    let _ctx = _c.getContext('2d');
+    _ctx.drawImage(img,0,0,img.width,img.height);
+    return _ctx.getImageData(0,0,_c.width,_c.height);
+}
+
+function ImageDatToImage(dat, w, h) {
+    let _c = document.createElement('canvas');
+    _c.width = w;
+    _c.height = h;
+    let _ctx = _c.getContext('2d');
+    _ctx.putImageData(dat, 0,0);
+    let _i = new Image();
+    _i.src=_c.toDataURL();
+    _i.width = w;
+    _i.height = h;
+    return _i;
+}
+
 var undo_history=[];
 var redo_history = [];
 
@@ -337,17 +360,6 @@ tools['Rect'] = function(x, y, select_color, settings) {
             tool_data['Rect'].current_r = false;
         }
     }
-}
-
-function ImageDatToImage(dat, w, h) {
-    let _c = document.createElement('canvas');
-    _c.width = w;
-    _c.height = h;
-    let _ctx = _c.getContext('2d');
-    _ctx.putImageData(dat, 0,0);
-    let _i = new Image();
-    _i.src=_c.toDataURL();
-    return _i;
 }
 
 tools['Circle'] = function(x, y, select_color, settings) {
