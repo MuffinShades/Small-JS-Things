@@ -177,6 +177,14 @@ setInterval(function(){
     }
 },1);
 
+function setCursor(mode) {
+    can.style.cursor=mode;
+}
+
+function resetCursor() {
+    can.style.cursor = 'default';
+}
+
 tools['Brush'] = function(x, y, select_color, settings) {
     if (settings.mode == 0) {
         drawing = true;
@@ -482,6 +490,9 @@ tools['Select'] = function(x, y, current_color, settings) {
             sel_w:0,
             sel_h:0,
             img:null,
+            xOff: 0,
+            yOff: 0,
+            mov: false,
             dash_offset: 0,
             dash_space: 5,
             current_r: false,
@@ -502,28 +513,70 @@ tools['Select'] = function(x, y, current_color, settings) {
             tool_data['Select'].current_r = true;
         }
 
-        for (let i = 0; i < dat.pts.length; i++) {
-            let p = dat.pts[i];
-            let pw = dat.point_w/2;
-            if (x <= p.x + pw && x + 1 >= p.x - pw && y <= p.y + pw && y + 1 >= p.y - pw) {
-                tool_data['Select'].current_pt = i;
+        if (dat.pts) {
+            for (let i = 0; i < dat.pts.length; i++) {
+                let p = dat.pts[i];
+                let pw = dat.point_w/2;
+                if (x <= p.x + pw && x + 1 >= p.x - pw && y <= p.y + pw && y + 1 >= p.y - pw) {
+                    tool_data['Select'].current_pt = i;
+                }
             }
         }
 
         if (dat.select_mov || dat.current_r) {
-            let sx = dat.sel_w >= 0 ? dat.sel_x : dat.sel_x - dat.sel_w;
-            let sy = dat.sel_h >= 0 ? dat.sel_y : dat.sel_y - dat.sel_h; 
-            let sw = dat.sel_w >= 0 ? dat.sel_w : x - sx;
-            let sh = dat.sel_h >= 0 ? dat.sel_h : y - sy;
-            if (x <= sx + sw && x +1 >= sx && y <= sy + sh && y + 1 >= sy) {
+            let sx = dat.sel_w >= 0 ? dat.sel_x : dat.sel_x + dat.sel_w;
+            let sy = dat.sel_h >= 0 ? dat.sel_y : dat.sel_y + dat.sel_h; 
+            let sw = dat.sel_w >= 0 ? dat.sel_w : dat.sel_x - sx;
+            let sh = dat.sel_h >= 0 ? dat.sel_h : dat.sel_y - sy;
+            sx -= dat.point_w;
+            sy -= dat.point_w;
+            sw += dat.point_w * 2;
+            sh += dat.point_w*2;
+            //ctx.fillStyle = '#f00';
+            //ctx.fillRect(sx,sy,sw,sh);
+            if (!(x <= sx + sw && x +1 >= sx && y <= sy + sh && y + 1 >= sy)) {
                 ctx.putImageData(dat.c_sav,0,0);
                 ctx.drawImage(dat.img,dat.sel_x,dat.sel_y,dat.sel_w,dat.sel_h);
-                tool_data['Select'] = {};
+                tool_data['Select'] = void 0;
+            } else if (dat.current_pt < 0) {
+                console.log('!');
+                dat.mov = true;
+                dat.xOff = x - dat.sel_x;
+                dat.yOff = y - dat.sel_y;
             }
         }
     }
 
     if (settings.mode == 1) {
+        //hovering
+        if (dat.current_pt < 0 && !dat.current_r) {
+            let sx = dat.sel_w >= 0 ? dat.sel_x : dat.sel_x + dat.sel_w;
+            let sy = dat.sel_h >= 0 ? dat.sel_y : dat.sel_y + dat.sel_h; 
+            let sw = dat.sel_w >= 0 ? dat.sel_w : dat.sel_x - sx;
+            let sh = dat.sel_h >= 0 ? dat.sel_h : dat.sel_y - sy;
+            sx -= dat.point_w;
+            sy -= dat.point_w;
+            sw += dat.point_w * 2;
+            sh += dat.point_w*2;
+            //ctx.fillStyle = '#f00';
+            //ctx.fillRect(sx,sy,sw,sh);
+            if (x <= sx + sw && x +1 >= sx && y <= sy + sh && y + 1 >= sy) {
+                //hover events
+                setCursor('move');
+
+                if (dat.pts) {
+                    for (let i = 0; i < dat.pts.length; i++) {
+                        let p = dat.pts[i];
+                        let pw = dat.point_w/2;
+                        if (x <= p.x + pw && x + 1 >= p.x - pw && y <= p.y + pw && y + 1 >= p.y - pw) {
+                            setCursor(p.cursor);
+                        }
+                    }
+                }
+            } else {
+                setCursor('');
+            }
+        }
         ctx.globalAlpha=1;
             if (dat.current_r) {
 
@@ -578,6 +631,13 @@ tools['Select'] = function(x, y, current_color, settings) {
                     for (let i = 0; i < tool_data['Select'].pts.length; i++) {
                         tool_data['Select'].pts[i].updateP(dat);
                     }
+                } else if (dat.mov) {
+                    dat.sel_x = x - dat.xOff;
+                    dat.sel_y = y - dat.yOff;
+
+                    for (let i = 0; i < dat.pts.length; i++) {
+                        dat.pts[i].updateP(dat);
+                    }
                 }
             }
     } 
@@ -620,6 +680,7 @@ tools['Select'] = function(x, y, current_color, settings) {
             y: dat.sel_y,
             modX: 'sel_x',
             modY: 'sel_y',
+            cursor: 'nw-resize',
             updateP: function(dat) {
                 this.x = dat.sel_x;
                 this.y = dat.sel_y;
@@ -631,6 +692,7 @@ tools['Select'] = function(x, y, current_color, settings) {
             y: dat.sel_y,
             modX: 'sel_w',
             modY: 'sel_y',
+            cursor: 'ne-resize',
             updateP: function(dat) {
                 this.x = dat.sel_x+dat.sel_w;
                 this.y = dat.sel_y;
@@ -642,6 +704,7 @@ tools['Select'] = function(x, y, current_color, settings) {
             y: dat.sel_y+dat.sel_h,
             modX: 'sel_w',
             modY: 'sel_h',
+            cursor: 'nw-resize',
             updateP: function(dat) {
                 this.x = dat.sel_x+dat.sel_w;
                 this.y = dat.sel_y+dat.sel_h;
@@ -653,9 +716,59 @@ tools['Select'] = function(x, y, current_color, settings) {
             y: dat.sel_y+dat.sel_h,
             modX: 'sel_x',
             modY: 'sel_h',
+            cursor: 'ne-resize',
             updateP: function(dat) {
                 this.x = dat.sel_x;
                 this.y = dat.sel_y+dat.sel_h;
+            }
+        })
+
+        //side points
+        tool_data['Select'].pts.push({
+            x: dat.sel_x,
+            y: dat.sel_y+dat.sel_h/2,
+            modX: 'sel_x',
+            modY: '',
+            cursor: 'w-resize',
+            updateP: function(dat) {
+                this.x = dat.sel_x;
+                this.y = dat.sel_y+dat.sel_h/2;
+            }
+        })
+
+        tool_data['Select'].pts.push({
+            x: dat.sel_x+dat.sel_w/2,
+            y: dat.sel_y+dat.sel_h,
+            modX: '',
+            modY: 'sel_h',
+            cursor: 's-resize',
+            updateP: function(dat) {
+                this.x = dat.sel_x+dat.sel_w/2;
+                this.y = dat.sel_y+dat.sel_h;
+            }
+        })
+
+        tool_data['Select'].pts.push({
+            x: dat.sel_x+dat.sel_w,
+            y: dat.sel_y+dat.sel_h/2,
+            modX: 'sel_w',
+            modY: '',
+            cursor: 'e-resize',
+            updateP: function(dat) {
+                this.x = dat.sel_x+dat.sel_w;
+                this.y = dat.sel_y+dat.sel_h/2;
+            }
+        })
+
+        tool_data['Select'].pts.push({
+            x: dat.sel_x+dat.sel_w/2,
+            y: dat.sel_y,
+            modX: '',
+            modY: 'sel_y',
+            cursor: 'n-resize',
+            updateP: function(dat) {
+                this.x = dat.sel_x+dat.sel_w/2;
+                this.y = dat.sel_y;
             }
         })
         }
@@ -663,6 +776,9 @@ tools['Select'] = function(x, y, current_color, settings) {
         if (tool_data['Select'].select_mov) {
             tool_data['Select'].current_pt = -1;
         }
+
+        resetCursor();
+        dat.mov = false;
     }
 }
 
@@ -689,7 +805,9 @@ tool_update['Select'] = function() {
         ctx.lineTo(dat.sel_x,dat.sel_y);
         ctx.stroke();
         ctx.setLineDash([]);
+        
         for (let i = 0; i < dat.pts.length; i++) {
+            
             let p = dat.pts[i];
             let pw = dat.point_w;
 
