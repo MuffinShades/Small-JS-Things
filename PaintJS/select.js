@@ -1,3 +1,15 @@
+/*
+
+File for the Select Tool
+
+Programmed by James Weigand 5/19/2023
+
+version 1.0
+
+This tool is a addon and is not included in the original tutorial due to complexity
+
+*/
+
 tools['Select'] = function(x, y, current_color, settings) {
     if (tool_data['Select'] == void 0 || tool_data['Select'] == {}) {
         tool_data['Select'] = {

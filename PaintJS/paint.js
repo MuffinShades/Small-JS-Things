@@ -20,7 +20,9 @@ let _r = can.getClientRects();
 temp.style = `position: absolute; top: ${_r.top}; left: ${_r.left}; width: ${can.width}; height: ${can.height};`;
 
 ctx.fillStyle = '#fff';
+ctx.globalAlpha = 0;
 ctx.fillRect(0,0,can.width,can.height);
+ctx.globalAlpha = 1;
 
 ctx.strokeStyle = '#f00';
 ctx.strokeRect(200,200,50, 50);
@@ -428,7 +430,7 @@ tools['Circle'] = function(x, y, select_color, settings) {
 }
 
 tools['Eraser'] = function(x, y, select_color, settings) {
-    tools['Brush'](x,y, {r:255,g:255,b:255,a:255}, settings);
+    tools['Brush'](x,y, {r:255,g:255,b:255,a:0}, settings);
 }
 
 i_execute['Eye Dropper'] = function() {
