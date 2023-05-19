@@ -172,6 +172,45 @@ can.addEventListener('mouseup', function(e) {
     tools[current_tool](mx, my, current_color, {mode:2,brush_size:BrushSize});
 });
 
+let clipboard = [];
+
+let ctrl = false;
+
+window.addEventListener('keydown',function(e) {
+    if (e.key.toLowerCase() == 'control') {
+        ctrl = true;
+    }
+    if (ctrl) {
+        for (let i = 0; i < ctrlCombos.length; i++) {
+            if (typeof ctrlCombos[i] == 'object' && ctrlCombos[i].exe && ctrlCombos[i].char.toLowerCase() == e.key.toLowerCase()) {
+                ctrlCombos[i].exe(e);
+            }
+        }
+    }
+})
+
+window.addEventListener('keyup',function(e) {
+    if (e.key.toLowerCase() == 'control') {
+        ctrl = false;
+    }
+});
+
+let ctrlCombos = [];
+
+ctrlCombos.push({
+    char: 'c',
+    exe: function(e) {
+        Copy();
+    }
+})
+
+ctrlCombos.push({
+    char: 'v',
+    exe: function(e) {
+        Paste();
+    }
+})
+
 function SetColorInputValue(e, v){
     let r_hex = v.r.toString(16);
     let g_hex = v.g.toString(16);
@@ -210,285 +249,31 @@ function resetCursor() {
     can.style.cursor = 'default';
 }
 
-tools['Brush'] = function(x, y, select_color, settings) {
-    if (settings.mode == 0) {
-        drawing = true;
-        lastX = x;
-        lastY = y;
-    }
+function Copy() {
+    if (tool_data['Select']) {
+        let dat = tool_data['Select'];
 
-    if (drawing && settings.mode == 1) {
-        ctx.lineWidth = settings.brush_size;
-        ctx.strokeStyle = SetCanvasStrokeColor(select_color);
-
-        ctx.beginPath();
-        ctx.lineCap = "round";
-        ctx.moveTo(lastX, lastY);
-        ctx.lineTo(x,y);
-        ctx.stroke();
-
-        lastX = x;
-        lastY = y;
-    }
-
-    if (settings.mode == 2) {
-        drawing = false;
-    }
-}
-
-tools['Fill'] = function(x, y, select_color, settings) {
-    if (settings.mode == 0) {
-    let _dat = ctx.getImageData(0,0,can.width,can.height);
-
-    var GetPixelColor = function(x, y, w, dat) {
-        let p  = (x + y*w) * 4;
-        return {
-
-            r: dat[p+0],
-            g: dat[p+1],
-            b: dat[p+2],
-            a: dat[p+3],
-        }
-    };
-
-    //alert(GetPixelColor(0,0).r);
-
-    var targetColor = GetPixelColor(x,y,can.width,_dat.data);
-
-    //alert(targetColor.r);
-
-    let pix = [
-        {x: x+1, y: y},
-        {x: x, y: y + 1},
-        {x: x-1, y: y},
-        {x: x, y: y-1}
-    ];
-
-    if (targetColor.r == select_color.r && targetColor.g == select_color.g && targetColor.b == select_color.b) return;
-
-    while (pix.length > 0) {
-        let p = pix.pop();
-        //console.log(GetPixelColor(p.x,p.y), targetColor, GetPixelColor(p.x,p.y) == targetColor);
-        var pval = GetPixelColor(p.x, p.y, can.width, _dat.data);
-        if (pval.r == targetColor.r && pval.g == targetColor.g && pval.b == targetColor.b && pval.a == targetColor.a && p.x > 0 && p.y > 0 && p.x < can.width && p.y < can.height) {
-            let _p = (p.x+(p.y*can.width))*4;
-
-            _dat.data[_p+0] = select_color.r;
-            _dat.data[_p+1] = select_color.g;
-            _dat.data[_p+2] = select_color.b;
-            _dat.data[_p+3] = select_color.a;
-
-            pix.push({x: p.x + 1, y: p.y + 0});
-            pix.push({x: p.x + 0, y: p.y + 1});
-            pix.push({x: p.x - 1, y: p.y - 0});
-            pix.push({x: p.x - 0, y: p.y - 1});
-        }
-    }
-
-    ctx.putImageData(_dat,0,0);
-}
-};
-
-
-
-tools['Rect'] = function(x, y, select_color, settings) {
-    if (tool_data['Rect'] == void 0) {
-        tool_data['Rect'] = {
-            dat_save: [],
-            current_r: false,
-            sx: 0,
-            sy: 0,
-            color: {},
-        }
-    }
-
-    if (settings.mode == 0) {
-        tool_data['Rect'].current_r = true;
-        tool_data['Rect'].sx = x;
-        tool_data['Rect'].sy = y;
-        tool_data['Rect'].dat_save = ctx.getImageData(0,0,can.width,can.height);
-        tool_data['Rect'].color = current_color;
-    }
-
-    if (settings.mode == 1) {
-        if (tool_data['Rect'].current_r) {
-            ctx.lineWidth = settings.brush_size;
-            ctx.putImageData(tool_data['Rect'].dat_save,0,0);
-            SetCanvasStrokeColor(tool_data['Rect'].color);
-            let sy = tool_data['Rect'].sy, sx = tool_data['Rect'].sx;
-            if (x - sx >= 0 && y - sy >= 0) {
-                ctx.strokeRect(sx, sy, x-sx, y-sy);
-            } else {
-                let _x = sx, _y = sy, _w = x-sx, _h = y-sy;
-                if (x - sx < 0 && y - sy >= 0) {
-                    _x = x;
-                    _w = Math.abs(x-sx);
+        if (dat.select_mov) {
+            clipboard.push(
+                {
+                    x: dat.sel_x,
+                    y: dat.sel_y,
+                    w: dat.sel_w,
+                    h: dat.sel_h,
+                    img: dat.img
                 }
-
-                if (x - sx >= 0 && y - sy < 0) {
-                    _y = y;
-                    _h = Math.abs(y-sy);
-                }
-
-                ctx.strokeRect(_x, _y, _w, _h);
-            }
-        }
-    }
-
-    if (settings.mode == 2) {
-        if (tool_data['Rect'].current_r) {
-            ctx.putImageData(tool_data['Rect'].dat_save,0,0);
-            ctx.lineWidth = settings.brush_size;
-            SetCanvasStrokeColor(tool_data['Rect'].color);
-            let sy = tool_data['Rect'].sy, sx = tool_data['Rect'].sx;
-            if (x - sx >= 0 && y - sy >= 0) {
-                ctx.strokeRect(sx, sy, x-sx, y-sy);
-            } else {
-                let _x = sx, _y = sy, _w = x-sx, _h = y-sy;
-                if (x - sx < 0 && y - sy >= 0) {
-                    _x = x;
-                    _w = Math.abs(x-sx);
-                }
-
-                if (x - sx >= 0 && y - sy < 0) {
-                    _y = y;
-                    _h = Math.abs(y-sy);
-                }
-
-                ctx.strokeRect(_x, _y, _w, _h);
-            }
-            tool_data['Rect'].current_r = false;
+            );
         }
     }
 }
 
-tools['Circle'] = function(x, y, select_color, settings) {
-    if (tool_data['Circle'] == void 0) {
-        tool_data['Circle'] = {
-            dat_save: [],
-            current_r: false,
-            sx: 0,
-            sy: 0,
-            color: {},
-        }
-    }
+function Paste() {
+    if (clipboard.length > 0) {
+        let dat = tool_data['Select'];
 
-    if (settings.mode == 0) {
-        tool_data['Circle'].current_r = true;
-        tool_data['Circle'].sx = x;
-        tool_data['Circle'].sy = y;
-        tool_data['Circle'].dat_save = ctx.getImageData(0,0,can.width,can.height);
-        tool_data['Circle'].color = current_color;
+        let clip_dat = clipboard.pop();
 
-        can.appendChild(e);
-    }
-
-    if (settings.mode == 1) {
-        if (tool_data['Circle'].current_r) {
-            ctx.lineWidth = settings.brush_size;
-            ctx.putImageData(tool_data['Circle'].dat_save,0,0);
-            SetCanvasStrokeColor(tool_data['Circle'].color);
-            let sy = tool_data['Circle'].sy, sx = tool_data['Circle'].sx;
-            ctx.beginPath();
-            if (x - sx >= 0 && y - sy >= 0) {
-                ctx.roundRect(sx, sy, x-sx, y-sy, [sx*sy]);
-            } else {
-                let _x = sx, _y = sy, _w = x-sx, _h = y-sy;
-                if (x - sx < 0 && y - sy >= 0) {
-                    _x = x;
-                    _w = Math.abs(x-sx);
-                }
-
-                if (x - sx >= 0 && y - sy < 0) {
-                    _y = y;
-                    _h = Math.abs(y-sy);
-                }
-                ctx.roundRect(_x,_y,_w,_h,_w);
-            }
-            ctx.stroke();
-        }
-    }
-
-    if (settings.mode == 2) {
-        if (tool_data['Circle'].current_r) {
-            ctx.putImageData(tool_data['Circle'].dat_save,0,0);
-            ctx.lineWidth = settings.brush_size;
-            SetCanvasStrokeColor(tool_data['Circle'].color);
-            let sy = tool_data['Circle'].sy, sx = tool_data['Circle'].sx;
-            ctx.save();
-            ctx.beginPath();
-            if (x - sx >= 0 && y - sy >= 0) {
-                ctx.scale(1, ((y-sy)/2) / ((x-sx)/2));
-                ctx.arc(sx, sy, (x-sx)/2, 0, Math.PI * 2);
-            } else {
-                let _x = sx, _y = sy, _w = x-sx, _h = y-sy;
-                if (x - sx < 0 && y - sy >= 0) {
-                    _x = x;
-                    _w = Math.abs(x-sx);
-                }
-
-                if (x - sx >= 0 && y - sy < 0) {
-                    _y = y;
-                    _h = Math.abs(y-sy);
-                }
-                ctx.scale(1, (_h/2)/(_w/2));
-                ctx.arc(_x,_y,_w/2, 0, Math.PI * 2);
-            }
-            ctx.stroke();
-            ctx.restore();
-            tool_data['Circle'].current_r = false;
-        }
-    }
-}
-
-tools['Eraser'] = function(x, y, select_color, settings) {
-    tools['Brush'](x,y, {r:255,g:255,b:255,a:0}, settings);
-}
-
-i_execute['Eye Dropper'] = function() {
-    tool_data['Eye Dropper'] = {
-        dat: ctx.getImageData(0,0,can.width,can.height),
-        last_tool: current_tool,
-    }
-}
-
-tools['Eye Dropper'] = function(x, y, select_color, settings) {
-    if (settings.mode == 0) {
-        let dat = tool_data['Eye Dropper'].dat;
-        let mdx = (x + (y * can.width))*4;
-        current_color = {
-            r: dat.data[mdx+0],
-            g: dat.data[mdx+1],
-            b: dat.data[mdx+2],
-            a: dat.data[mdx+3]
-        }
-        SetTool(tool_data['Eye Dropper'].last_tool);
-        ctx.putImageData(tool_data['Eye Dropper'].dat,0,0);
-        SetColorInputValue(document.querySelector('#color_inp'),current_color);
-    }
-
-    if (settings.mode == 1) {
-        ctx.putImageData(tool_data['Eye Dropper'].dat,0,0);
-        let dat = tool_data['Eye Dropper'].dat;
-        let mdx = (x + (y * can.width))*4;
-        ctx.lineWidth = 1;
-        for (let i = -5; i <= 5; i++) {
-            for (let j = -5; j <= 5; j++) {
-                let idx = mdx + (i + j*can.height)*4;
-
-                
-                ctx.fillStyle = `rgb(${dat.data[idx+0]},${dat.data[idx+1]},${dat.data[idx+2]})`
-                ctx.fillRect(15+x+((i+5)*10),15+y+((j+5)*10),10,10);
-                ctx.strokeStyle = '#eee';
-                ctx.strokeRect(15+x+((i+5)*10), 15+y+((j+5)*10),10,10);
-            }
-        }
-        ctx.strokeStyle = '#999';
-        ctx.strokeRect(15+x+((0+5)*10), 15+y+((0+5)*10),10,10);
-    }
-
-    if (settings.mode == 2) {
-        ctx.putImageData(tool_data['Eye Dropper'].dat,0,0);
+        SelectImg(clip_dat.img, clip_dat.x, clip_dat.y, clip_dat.w, clip_dat.h);
     }
 }
 
