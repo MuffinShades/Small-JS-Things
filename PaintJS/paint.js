@@ -277,6 +277,30 @@ function Paste() {
     }
 }
 
+let img_prompt = document.getElementById('img_prompt');
+
+function PromptImage() {
+    img_prompt.style.display = 'block';
+}
+
+function AddImage() {
+    let e = document.getElementById('img_file_inp');
+
+    let _img = e.files;
+    
+    if (_img.length > 0) {
+        let img = _img[0];
+
+        let IMG = new Image();
+        IMG.src = URL.createObjectURL(img);
+        IMG.onload = function() {
+            SelectImg(this, 0, 0, this.naturalWidth, this.naturalHeight);
+        }
+    }
+
+    img_prompt.style.display = 'none';
+}
+
 /*function DrawLineDash(pa, pb, spacing, offset) {
     //let m  = Math.random()*3;
 

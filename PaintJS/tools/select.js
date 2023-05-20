@@ -11,7 +11,8 @@ This tool is a addon and is not included in the original tutorial due to complex
 */
 
 function SelectImg(img, x, y, w, h) {
-    console.log(tool_data['Select'] && tool_data['Select'].c_sav != null);
+    console.log(img, x, y, w, h);
+    current_tool = 'Select';
     if (tool_data['Select'] && tool_data['Select'].c_sav != null) {
         ctx.putImageData(tool_data['Select'].c_sav,0,0);
         ctx.drawImage(tool_data['Select'].img,tool_data['Select'].sel_x,tool_data['Select'].sel_y,tool_data['Select'].sel_w,tool_data['Select'].sel_h);

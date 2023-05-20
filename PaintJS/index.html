@@ -1,9 +1,27 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title></title>
+        <title>Muffin Paint</title>
+        <style>
+            #img_prompt {
+                display: block;
+                position: absolute;
+                top: calc(50% - 100px);
+                left: calc(50% - 100px);
+                padding: 10px;
+                background-color: rgb(230,230,230);
+                border: 1px solid #999;
+                width: 200px;
+                height: 200px;
+                z-index:999;
+            }
+        </style>
     </head>
     <body>
+        <div id='img_prompt'>
+            <input type="file" id='img_file_inp'><br><br>
+            <button onclick="this.parentElement.style.display='none'">Close</button><button onclick="AddImage()">Add+</button>
+        </div>
         <div id='bar'>
             <button onclick='SetTool("Rect")'>Rectangle</button>
             <button onclick='SetTool("Circle")'>Circle</button>
@@ -14,6 +32,7 @@
             <button onclick='SetTool("Eraser")'>Eraser</button>
             <button onclick='SetTool("Eye Dropper")'>Eye Dropper</button>
             <button onclick='SetTool("Select")'>Select</button>
+            <button onclick='PromptImage()'>Add Image</button>
             <input type='color' oninput='SetColorInp(this)' id='color_inp'>
             <label>Brush Size:</label><input type="number" value='1' style='width: 35px;' oninput='SetBrushSize(this.value)'><span> px</span>
         </div>
