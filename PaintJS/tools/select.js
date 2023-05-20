@@ -11,6 +11,11 @@ This tool is a addon and is not included in the original tutorial due to complex
 */
 
 function SelectImg(img, x, y, w, h) {
+    console.log(tool_data['Select'] && tool_data['Select'].c_sav != null);
+    if (tool_data['Select'] && tool_data['Select'].c_sav != null) {
+        ctx.putImageData(tool_data['Select'].c_sav,0,0);
+        ctx.drawImage(tool_data['Select'].img,tool_data['Select'].sel_x,tool_data['Select'].sel_y,tool_data['Select'].sel_w,tool_data['Select'].sel_h);
+    }
     tool_data['Select'] = {
         dat: GetImageDat(img),
         c_sav: ctx.getImageData(0,0,can.width,can.height),
@@ -32,7 +37,108 @@ function SelectImg(img, x, y, w, h) {
         point_w: 4,
         current_pt:-1,
     }
-    tools['Select'](x,y,{r:0,g:0,b:0},{mode:2});
+    addPoints();
+}
+
+function addPoints() {
+    let dat = tool_data['Select'];
+    tool_data['Select'].pts = [];
+    tool_data['Select'].pts.push({
+        x: dat.sel_x,
+        y: dat.sel_y,
+        modX: 'sel_x',
+        modY: 'sel_y',
+        cursor: 'nw-resize',
+        updateP: function(dat) {
+            this.x = dat.sel_x;
+            this.y = dat.sel_y;
+        }
+    })
+
+    tool_data['Select'].pts.push({
+        x: dat.sel_x+dat.sel_w,
+        y: dat.sel_y,
+        modX: 'sel_w',
+        modY: 'sel_y',
+        cursor: 'ne-resize',
+        updateP: function(dat) {
+            this.x = dat.sel_x+dat.sel_w;
+            this.y = dat.sel_y;
+        }
+    })
+
+    tool_data['Select'].pts.push({
+        x: dat.sel_x+dat.sel_w,
+        y: dat.sel_y+dat.sel_h,
+        modX: 'sel_w',
+        modY: 'sel_h',
+        cursor: 'nw-resize',
+        updateP: function(dat) {
+            this.x = dat.sel_x+dat.sel_w;
+            this.y = dat.sel_y+dat.sel_h;
+        }
+    })
+
+    tool_data['Select'].pts.push({
+        x: dat.sel_x,
+        y: dat.sel_y+dat.sel_h,
+        modX: 'sel_x',
+        modY: 'sel_h',
+        cursor: 'ne-resize',
+        updateP: function(dat) {
+            this.x = dat.sel_x;
+            this.y = dat.sel_y+dat.sel_h;
+        }
+    })
+
+    //side points
+    tool_data['Select'].pts.push({
+        x: dat.sel_x,
+        y: dat.sel_y+dat.sel_h/2,
+        modX: 'sel_x',
+        modY: '',
+        cursor: 'w-resize',
+        updateP: function(dat) {
+            this.x = dat.sel_x;
+            this.y = dat.sel_y+dat.sel_h/2;
+        }
+    })
+
+    tool_data['Select'].pts.push({
+        x: dat.sel_x+dat.sel_w/2,
+        y: dat.sel_y+dat.sel_h,
+        modX: '',
+        modY: 'sel_h',
+        cursor: 's-resize',
+        updateP: function(dat) {
+            this.x = dat.sel_x+dat.sel_w/2;
+            this.y = dat.sel_y+dat.sel_h;
+        }
+    })
+
+    tool_data['Select'].pts.push({
+        x: dat.sel_x+dat.sel_w,
+        y: dat.sel_y+dat.sel_h/2,
+        modX: 'sel_w',
+        modY: '',
+        cursor: 'e-resize',
+        updateP: function(dat) {
+            this.x = dat.sel_x+dat.sel_w;
+            this.y = dat.sel_y+dat.sel_h/2;
+        }
+    })
+
+    tool_data['Select'].pts.push({
+        x: dat.sel_x+dat.sel_w/2,
+        y: dat.sel_y,
+        modX: '',
+        modY: 'sel_y',
+        cursor: 'n-resize',
+        updateP: function(dat) {
+            this.x = dat.sel_x+dat.sel_w/2;
+            this.y = dat.sel_y;
+        }
+    })
 }
 
 tools['Select'] = function(x, y, current_color, settings) {
@@ -229,104 +335,7 @@ tools['Select'] = function(x, y, current_color, settings) {
         tool_data['Select'].c_sav=ctx.getImageData(0,0,can.width,can.height);
         ctx.drawImage(tool_data['Select'].img,tool_data['Select'].sel_x,tool_data['Select'].sel_y,tool_data['Select'].sel_w,tool_data['Select'].sel_h);
 
-        tool_data['Select'].pts = [];
-
-        tool_data['Select'].pts.push({
-            x: dat.sel_x,
-            y: dat.sel_y,
-            modX: 'sel_x',
-            modY: 'sel_y',
-            cursor: 'nw-resize',
-            updateP: function(dat) {
-                this.x = dat.sel_x;
-                this.y = dat.sel_y;
-            }
-        })
-
-        tool_data['Select'].pts.push({
-            x: dat.sel_x+dat.sel_w,
-            y: dat.sel_y,
-            modX: 'sel_w',
-            modY: 'sel_y',
-            cursor: 'ne-resize',
-            updateP: function(dat) {
-                this.x = dat.sel_x+dat.sel_w;
-                this.y = dat.sel_y;
-            }
-        })
-
-        tool_data['Select'].pts.push({
-            x: dat.sel_x+dat.sel_w,
-            y: dat.sel_y+dat.sel_h,
-            modX: 'sel_w',
-            modY: 'sel_h',
-            cursor: 'nw-resize',
-            updateP: function(dat) {
-                this.x = dat.sel_x+dat.sel_w;
-                this.y = dat.sel_y+dat.sel_h;
-            }
-        })
-
-        tool_data['Select'].pts.push({
-            x: dat.sel_x,
-            y: dat.sel_y+dat.sel_h,
-            modX: 'sel_x',
-            modY: 'sel_h',
-            cursor: 'ne-resize',
-            updateP: function(dat) {
-                this.x = dat.sel_x;
-                this.y = dat.sel_y+dat.sel_h;
-            }
-        })
-
-        //side points
-        tool_data['Select'].pts.push({
-            x: dat.sel_x,
-            y: dat.sel_y+dat.sel_h/2,
-            modX: 'sel_x',
-            modY: '',
-            cursor: 'w-resize',
-            updateP: function(dat) {
-                this.x = dat.sel_x;
-                this.y = dat.sel_y+dat.sel_h/2;
-            }
-        })
-
-        tool_data['Select'].pts.push({
-            x: dat.sel_x+dat.sel_w/2,
-            y: dat.sel_y+dat.sel_h,
-            modX: '',
-            modY: 'sel_h',
-            cursor: 's-resize',
-            updateP: function(dat) {
-                this.x = dat.sel_x+dat.sel_w/2;
-                this.y = dat.sel_y+dat.sel_h;
-            }
-        })
-
-        tool_data['Select'].pts.push({
-            x: dat.sel_x+dat.sel_w,
-            y: dat.sel_y+dat.sel_h/2,
-            modX: 'sel_w',
-            modY: '',
-            cursor: 'e-resize',
-            updateP: function(dat) {
-                this.x = dat.sel_x+dat.sel_w;
-                this.y = dat.sel_y+dat.sel_h/2;
-            }
-        })
-
-        tool_data['Select'].pts.push({
-            x: dat.sel_x+dat.sel_w/2,
-            y: dat.sel_y,
-            modX: '',
-            modY: 'sel_y',
-            cursor: 'n-resize',
-            updateP: function(dat) {
-                this.x = dat.sel_x+dat.sel_w/2;
-                this.y = dat.sel_y;
-            }
-        })
+        addPoints();
         }
 
         if (tool_data['Select'].select_mov) {
