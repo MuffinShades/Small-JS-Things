@@ -271,7 +271,7 @@ function Paste() {
     if (clipboard.length > 0) {
         let dat = tool_data['Select'];
 
-        let clip_dat = clipboard.pop();
+        let clip_dat = clipboard[clipboard.length -1];
 
         SelectImg(clip_dat.img, clip_dat.x, clip_dat.y, clip_dat.w, clip_dat.h);
     }
