@@ -4,7 +4,7 @@
         <title>Muffin Paint</title>
         <style>
             #img_prompt {
-                display: block;
+                display: none;
                 position: absolute;
                 top: calc(50% - 100px);
                 left: calc(50% - 100px);
@@ -15,6 +15,65 @@
                 height: 200px;
                 z-index:999;
             }
+
+            #options-bar {
+                margin: 0;
+                width: 100%;
+                height: 20px;
+                background: #fcfcfc;
+                border-bottom: 1px solid #999;
+                position: absolute;
+                top:0;
+                left:0;
+                padding: 0;
+                margin: 0;
+                display: flex;
+            }
+            #options-bar button {
+                padding-left:7px;
+                padding-right: 7px;
+                border: none;
+                margin: 0;
+                width: 40px;
+                background: #fcfcfc;
+            }
+
+            #options-bar button:hover {
+                background: #eee;
+            }
+
+            #options-bar button #sub_menu {
+                display: none;
+                z-index:999;
+                border:1px solid #990;
+                background-image: linear-gradient(#fff, #eee);
+                padding: 5px;
+                width: 200px;
+                position: relative;
+                top:5px;
+                text-align: left;
+                font-size: 12px;
+            }
+
+            #options-bar button #sub_menu table tr{
+                height: 10px;
+                border-bottom: 1px solid #999;
+                margin: 0;
+                padding: 0;
+            }
+
+            #options-bar button:focus #sub_menu {
+                display:block;
+            }
+
+            #bar {
+                width: 50px;
+                height: auto;
+            }
+            #bar button {
+                width: 25px;
+                height: 25px; 
+            }
         </style>
     </head>
     <body>
@@ -22,6 +81,26 @@
             <input type="file" id='img_file_inp'><br><br>
             <button onclick="this.parentElement.style.display='none'">Close</button><button onclick="AddImage()">Add+</button>
         </div>
+        <div id='options-bar'>
+            <button><u>F</u>ile
+                <br>
+                <div id="sub_menu">
+                    <table>
+                        <tr>
+                            <td>
+                                <span>Print</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span>Copy</span>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </button>
+            <button>Edit</button>
+        </div><br>
         <div id='bar'>
             <button onclick='SetTool("Rect")'>Rectangle</button>
             <button onclick='SetTool("Circle")'>Circle</button>
