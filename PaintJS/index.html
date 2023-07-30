@@ -69,6 +69,7 @@
             #bar {
                 width: 50px;
                 height: auto;
+                display: flex;
             }
             #bar button {
                 width: 25px;
@@ -111,6 +112,7 @@
             <button onclick='SetTool("Eraser")'>Eraser</button>
             <button onclick='SetTool("Eye Dropper")'>Eye Dropper</button>
             <button onclick='SetTool("Select")'>Select</button>
+            <button onclick='SetTool("sprayPaint")'>Spray Paint</button>
             <button onclick='PromptImage()'>Add Image</button>
             <input type='color' oninput='SetColorInp(this)' id='color_inp'>
             <label>Brush Size:</label><input type="number" value='1' style='width: 35px;' oninput='SetBrushSize(this.value)'><span> px</span>
@@ -128,6 +130,7 @@
         <script src='tools/eraser.js'></script>
         <script src='tools/select.js'></script>
         <script src='tools/magicSelect.js'></script>
+        <script src='tools/sprayPaint.js'></script>
         <script src='gamemec.js'></script>
     </body>
 </html>
