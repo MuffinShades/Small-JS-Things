@@ -28,15 +28,17 @@ tools['Eye Dropper'] = function(x, y, select_color, settings) {
         for (let i = -5; i <= 5; i++) {
             for (let j = -5; j <= 5; j++) {
                 let idx = mdx + (i + j*can.height)*4;
-
-                
+                ctx.fillStyle = '#fff';
+                ctx.fillRect(15+x+((i+5)*10),15+y+((j+5)*10),10,10);
+                ctx.globalAlpha =dat.data[idx+3] / 255;
                 ctx.fillStyle = `rgb(${dat.data[idx+0]},${dat.data[idx+1]},${dat.data[idx+2]})`
                 ctx.fillRect(15+x+((i+5)*10),15+y+((j+5)*10),10,10);
+                ctx.globalAlpha = 1;
                 ctx.strokeStyle = '#eee';
                 ctx.strokeRect(15+x+((i+5)*10), 15+y+((j+5)*10),10,10);
             }
         }
-        ctx.strokeStyle = '#999';
+        ctx.strokeStyle = '#000';
         ctx.strokeRect(15+x+((0+5)*10), 15+y+((0+5)*10),10,10);
     }
 

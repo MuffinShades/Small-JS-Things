@@ -28,7 +28,7 @@ tools['Circle'] = function(x, y, select_color, settings) {
             ctx.beginPath();
             if (x - sx >= 0 && y - sy >= 0) {
                 ctx.beginPath();
-                ctx.ellipse(sx,sy,(x-sx)/2,(x-sy)/2,0,0,Math.PI*2);
+                ctx.ellipse(sx,sy,(x-sx),(x-sy),0,0,Math.PI*2);
                 ctx.stroke();
             } else {
                 let _x = sx, _y = sy, _w = x-sx, _h = y-sy;
@@ -42,7 +42,7 @@ tools['Circle'] = function(x, y, select_color, settings) {
                     _h = Math.abs(y-sy);
                 }
                 ctx.beginPath();
-                ctx.ellipse(_x,_y,(_w)/2,(_h)/2,0,0,Math.PI*2);
+                ctx.ellipse(_x,_y,(_w),(_h),0,0,Math.PI*2);
                 ctx.stroke();
             }
         }

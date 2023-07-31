@@ -72,8 +72,8 @@
                 display: flex;
             }
             #bar button {
-                width: 25px;
-                height: 25px; 
+                width: 50px;
+                height: 50px; 
             }
         </style>
     </head>
@@ -113,6 +113,7 @@
             <button onclick='SetTool("Eye Dropper")'>Eye Dropper</button>
             <button onclick='SetTool("Select")'>Select</button>
             <button onclick='SetTool("sprayPaint")'>Spray Paint</button>
+            <button onclick='SetTool("magicSelect")'>Magic Wand</button>
             <button onclick='PromptImage()'>Add Image</button>
             <input type='color' oninput='SetColorInp(this)' id='color_inp'>
             <label>Brush Size:</label><input type="number" value='1' style='width: 35px;' oninput='SetBrushSize(this.value)'><span> px</span>
@@ -120,7 +121,7 @@
         <div id='temp-cell'>
 
         </div>
-        <canvas id='c'></canvas>
+        <canvas id='c' width="800" height='700'></canvas>
         <script src='paint.js'></script>
         <script src='tools/brush.js'></script>
         <script src='tools/rect.js'></script>

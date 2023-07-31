@@ -162,7 +162,7 @@ tools['Select'] = function(x, y, current_color, settings) {
             current_r: false,
             select_mov: false,
             pts: [],
-            point_w: 4,
+            point_w: 8,
             current_pt:-1,
         }
     }
